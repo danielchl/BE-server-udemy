@@ -20,7 +20,10 @@ exports.verificaToken = function( req, res, next ) {
             })
         }
 
-        req.usuario = decoded.usuario;
+        console.log('******* here', decoded);
+        
+
+        req.usuario = decoded.Usuario;
 
         next();
 

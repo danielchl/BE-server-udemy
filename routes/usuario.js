@@ -16,23 +16,33 @@ var Usuario = require('../models/usuario');
 // ***************************
 app.get('/', (req, res, next) => { 
 
+    var desde =  req.query.desde || 0;
+    desde = Number(desde);
+
     Usuario.find( { }, 'nombre email img role')
+    .skip(desde) // nos brinca a la posición que queremos de registros para mostrar
+    .limit(5) // limita el numero de registros a mostrar
     .exec(
-            (err, usuarios) => {
-                if( err ) {
-                    return res.status(500).json({
-                        ok: false,
-                        mensaje: 'Error cargando usuario',
-                        errors: err
-                    })
-                }
+        (err, usuarios) => {
+            if( err ) {
+                return res.status(500).json({
+                    ok: false,
+                    mensaje: 'Error cargando usuario',
+                    errors: err
+                })
+            }
+
+            // .count del model nos devuelve la cantidad de registros
+            Usuario.count({}, (err, conteo) => {
                 res.status(200).json({
                     ok: true,
-                    usuarios
-                })
-            } 
-        
-        ) 
+                    usuarios,
+                    total: conteo
+                })    
+            })
+
+        }     
+    ) 
 
 
  } );
@@ -116,6 +126,8 @@ app.put('/:id', mdAutenticacion.verificaToken, (req, res) => {
 app.post('/', mdAutenticacion.verificaToken ,(req, res) => {
     
     var body = req.body; // el body es creado por el middleware body-parser
+
+    console.log(req);
 
     // refiere al modelo de datos Usuario, que es un Schema de moongose
     var usuario = new Usuario({
